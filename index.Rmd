@@ -1,30 +1,262 @@
 ---
-title: "index"
-author: "Chris Gaskell"
-date: "08/08/2021"
-output: html_document
+title: "Table of Cognitive Tests"
+author: "Salford Royal"
+date: "03/07/2021"
+output:
+  html_document:
+    fig_width: 15
+    fig_height: 6
+    fig_caption: true
+    df_print: paged
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+library(readxl)
+library(kableExtra)
+library(tidyverse)
+library(reactable)
+
+Tests <- read_excel("Tests.xlsx", sheet = 1, na = 'NA')
+#Quests <- read_excel("Tests.xlsx", sheet = 2)
+#Codes <- read_excel("Tests.xlsx", sheet = 3)
+
+Tests <- Tests[,1:15]
+
+Tests$`Year Published` <- as.numeric(Tests$`Year Published`)
+Tests$`Year Published` <- round(Tests$`Year Published`, 0)
+
+Tests3 <- Tests
+
+Tests <- Tests %>% select(c(-FurtherInfoLinks))
+
+
+#Tests$Domain<- as.factor(Tests$Domain)
+#Logo <- c("ACE.png", "AMIPB.jpg")
 ```
 
-## R Markdown
-
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
+```{r set-options, echo=FALSE, cache=FALSE}
+options(width = 200)
 ```
 
-## Including Plots
+```{r KE, echo=F, results="asis", include=F}
 
-You can also embed plots, for example:
+#Tests %>% 
+#mutate(Links = cell_spec(`Assessment Name`, "html", link = Links)) %>%
+#kbl(format = "html", escape = T, align = 'c',
+#    col.names = c("", "Abbreviation", "Logo", "Pub Year", "Primary Purpose", "Normative Data Age Range", "Administration Time",
+#                  "Alternate Forms","Qualification Code", "Supervision", "Copyright", "Details")) %>% 
+#kable_styling(bootstrap_options = c(
+#  "responsive", "striped", "hover", #"bordered",
+#  "condensed"), full_width = F,
+#  font_size = 16,
+#  fixed_thead = T) %>% 
+#row_spec(0, align = 'c') %>% 
+#column_spec(1, italic = T, border_right = T) %>%
+#column_spec(3, width_max = "3cm", width = "3cm") %>% 
+#column_spec(5, bold = T, width_max = "4cm", width = "4cm",
+#            color = "White",
+#            background = factor(Tests$`Primary Purpose`, c("Cognitive Screen", "Memory"), 
+#                                c("Blue", "Brown"))) %>% 
+#  column_spec(3, image = spec_image(Logo, width = 800, height = 400), width_min = "10cm")
 
-```{r pressure, echo=FALSE}
-plot(pressure)
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+```{r, echo=FALSE}
+set.seed(20)
+```
+
+```{css, echo=F}
+.tag {
+  display: inline-block;
+  padding: 2px 12px;
+  border-radius: 15px;
+  font-weight: 600;
+  font-size: 18px;
+}
+.domain-screen {
+  background: hsl(116, 60%, 90%);
+  color: hsl(116, 30%, 25%);
+}
+.domain-memory {
+  background: hsl(230, 70%, 90%);
+  color: hsl(230, 45%, 30%);
+}
+.domain-handedness {
+  background: hsl(350, 70%, 90%);
+  color: hsl(350, 45%, 30%);
+}
+.domain-autism {
+  background: hsl(450, 70%, 90%);
+  color: hsl(450, 45%, 30%);
+}
+.domain-executive-functioning {
+  background: hsl(50, 70%, 90%);
+  color: hsl(50, 45%, 30%);
+}
+.domain-attention {
+  background: hsl(80, 70%, 90%);
+  color: hsl(80, 45%, 30%);
+}
+.domain-language {
+  background: hsl(140, 70%, 90%);
+  color: hsl(140, 45%, 30%);
+}
+.domain-neuro-developmental {
+  background: hsl(170, 70%, 90%);
+  color: hsl(170, 45%, 30%);
+}
+.domain-visual {
+  background: hsl(200, 70%, 90%);
+  color: hsl(200, 45%, 30%);
+}
+.domain-motor {
+  background: hsl(350, 70%, 90%);
+  color: hsl(350, 45%, 30%);
+}
+
+.domain-intelligence-premorbid {
+  background: hsl(350, 70%, 90%);
+  color: hsl(350, 45%, 30%);
+}
+
+
+
+```
+
+
+```{r tags, eval=T, echo=F}
+
+library(reactablefmtr)
+library(htmltools)
+library(crosstalk)
+
+without_bootstrap <- function(func) {
+  func_without_bs <- function(...) {
+    x <- func(...)
+    htmlDependencies(x) <- Filter(function(d) d$name != "bootstrap", htmlDependencies(x))
+    x
+  }
+}
+filter_checkbox <- without_bootstrap(crosstalk::filter_checkbox)
+filter_slider <- without_bootstrap(crosstalk::filter_slider)
+filter_select <- without_bootstrap(crosstalk::filter_select)
+bscols <- without_bootstrap(crosstalk::bscols)
+
+#data <- Tests 
+
+## If no image links are in the original dataset, you need to assign them like so:
+#data <- Tests %>%
+# mutate(
+# img = case_when(
+#`Year Published` == 2012 ~
+# "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR60_jcdzF8O6emNSLGw9wNK75IBBH8wAiTkrC79QpqRdWGcAucHMxZXvT6WIui_sWQhYw&usqp=CAU",
+# `Year Published`== 1985 ~
+# "https://upload.wikimedia.org/wikipedia/commons/7/7a/Iris_versicolor.jpg",
+# TRUE ~ "NA"))
+
+## Then use embed_img() to display images
+#reactable(data,
+#columns = list(
+# Logo = colDef(cell = embed_img(height = 350, width = 450))))
+
+## By default, images are given a size of 24px by 24px,
+## but you can adjust the size using height and width:
+#reactable(data,
+#columns = list(
+# img = colDef(cell = embed_img(height = 50, width = 45))))
+
+
+
+
+## Optionally assign a label to the image from another column
+#reactable(data,
+#columns = list(
+# img = colDef(cell = embed_img(data, label = "Species"))))
+
+
+
+#reactable(Tests)
+
+
+sticky_style <- list(position = "sticky", left = 0, background = "#fff", zIndex = 1,
+                     borderRight = "1px solid #eee")
+
+
+data <- SharedData$new(Tests)
+
+Tests2 <- bscols(
+  widths = c(1.5, 9.5),
+  list(
+    filter_checkbox("domain", "Domain", data, ~Domain),
+    filter_checkbox("population", "Population", data, ~Population),
+    filter_slider("year Published", "Year Published", data, ~`Year Published`, width = "100%")
+    #filter_select("domain", "Domain", data, ~Domain)
+  ),
+
+reactable(
+  data, width = 2000, 
+    style = list(fontFamily = "Work Sans, sans-serif", fontSize = "16px"),
+  sortable = T,
+  defaultColDef = colDef(
+            header = function(value) gsub(".", " ", value, fixed = TRUE),
+            cell = function(value) format(value, nsmall = 1),
+            align = "center",
+            headerStyle = list(background = "#f7f7f8")),
+  
+  columns = list(
+            `Further Information` = colDef(html = TRUE, minWidth = 255, cell = function(value, index) {
+            sprintf('<a href="%s" target="_blank">%s</a>', Tests3$FurtherInfoLinks[index], value)
+          }),
+            `Assessment Name` = colDef(minWidth = 200,
+                   style = sticky_style,
+                   headerStyle = sticky_style),  # overrides the default
+            Logo = colDef(minWidth = 255,
+              cell = embed_img(height = 175, width = 255)),
+            `Alternative Forms` = colDef(na = "–", minWidth = 255),
+            `Year Published` = colDef(minWidth = 150, cell = function(value) {
+            round(value, 0)}),
+            `Age Range of norms` = colDef(minWidth = 200),
+          `Administration Time` = colDef(minWidth = 200),
+          `Second Domain` = colDef(minWidth = 200),
+          `Population` = colDef(minWidth = 200),
+          `Abbreviation` = colDef(minWidth = 150),
+          `Qualification Code` = colDef(minWidth = 200),
+          `Supervision` = colDef(minWidth = 170),
+          `Copyright` = colDef(minWidth = 200),
+            Domain = colDef(minWidth = 225,
+              cell = function(value) {
+    class <- paste0("tag domain-", tolower(value))
+    div(class = class, value)
+  }
+)), borderless = TRUE, highlight = TRUE, searchable = T, striped = T,
+  showPageSizeOptions = TRUE, pageSizeOptions = c(10, 20, 40, 100), defaultPageSize = 10
+)
+)
+
+
+
+cars <- MASS::Cars93[1:20, c("Manufacturer", "Model", "Type", "Price")]
+data <- SharedData$new(cars)
+
+carstest <- bscols(
+  widths = c(1.5, 9.5),
+  list(
+    filter_checkbox("type", "Type", data, ~Type),
+    filter_slider("price", "Price", data, ~Price, width = "100%"),
+    filter_select("mfr", "Manufacturer", data, ~Manufacturer)
+  ),
+  reactable(data, minRows = 10)
+)
+
+
+```
+
+```{r my-chunk, R.options = list(width = 100)}
+#carstest
+Tests2
+
+```
+
+
+
