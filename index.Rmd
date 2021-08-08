@@ -4,6 +4,7 @@ author: "Salford Royal"
 date: "03/07/2021"
 output:
   html_document:
+    css: "custom.css"
     fig_width: 15
     fig_height: 6
     fig_caption: true
@@ -195,7 +196,7 @@ Tests2 <- bscols(
   ),
 
 reactable(
-  data, width = 2000, 
+  data, width = 1000, 
     style = list(fontFamily = "Work Sans, sans-serif", fontSize = "16px"),
   sortable = T,
   defaultColDef = colDef(
@@ -252,7 +253,7 @@ carstest <- bscols(
 
 ```
 
-```{r my-chunk, R.options = list(width = 100)}
+```{r my-chunk, R.options = list(width = 100), echo = F}
 #carstest
 Tests2
 
